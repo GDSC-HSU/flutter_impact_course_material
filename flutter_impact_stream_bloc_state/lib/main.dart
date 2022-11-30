@@ -52,6 +52,10 @@ class _MyHomePageState extends State<MyHomePage> {
     _counterBloc.add(CounterDoubleEvent());
   }
 
+  void _dividedCounter() {
+    _counterBloc.add(CounterDividedEvent());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,6 +66,18 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            BlocBuilder<CounterBloc, CounterState>(
+                bloc: _counterBloc,
+                builder: (context, state) {
+                  if (state is CounterLoadFailure) {
+                    return Text(state.mess,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline4
+                            ?.copyWith(fontSize: 22, color: Colors.redAccent));
+                  }
+                  return Container();
+                }),
             Row(
               children: [
                 const Text(
@@ -72,11 +88,34 @@ class _MyHomePageState extends State<MyHomePage> {
             BlocBuilder<CounterBloc, CounterState>(
                 bloc: _counterBloc,
                 builder: (context, state) {
-                  return Text(state.counter.toString(),
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline4
-                          ?.copyWith(fontSize: 55));
+                  print(state);
+                  if (state is CounterLoadSusses) {
+                    return Text(state.counterNumber.toString(),
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline4
+                            ?.copyWith(fontSize: 55));
+                  }
+                  // InitialBlocState
+
+                  if (state is CounterLoading) {
+                    return CircularProgressIndicator();
+                  }
+
+                  if (state is CounterLoadFailure) {
+                    return Text("Error",
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline4
+                            ?.copyWith(fontSize: 55));
+                  }
+
+                  // LoadingBlocState
+                  return Container(
+                    width: 50,
+                    height: 20,
+                    color: Colors.red,
+                  );
                 }),
             Wrap(
               children: [
@@ -97,7 +136,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () {
                       this._doubleCounter();
                     },
-                    child: const Text("x2 Double Counter"))
+                    child: const Text("x2 Double Counter")),
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        primary: Colors.purple,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 50, vertical: 20),
+                        textStyle: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold)),
+                    onPressed: () {
+                      this._dividedCounter();
+                    },
+                    child: const Text("Divided Counter"))
               ],
             )
           ],
