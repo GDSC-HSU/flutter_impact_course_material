@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_impact_stream_bloc_state/blocs/bloc/counter_bloc.dart';
 import 'package:flutter_impact_stream_bloc_state/cli_stream_demo.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 final StreamDemo streamDemo = StreamDemo();
 
@@ -37,28 +39,17 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
+  final CounterBloc _counterBloc = CounterBloc();
   void _incrementCounter() {
-    // setState(() {
-    _counter++;
-    streamDemo.add(_counter);
-
-    //   // streamDemo.addData(_counter);
-    // });
+    _counterBloc.add(CounterIncrementEvent());
   }
 
-  // printStreamNumberAndReRenderWidget(num) {
-  //   print("[DEV] [RE-RENDER]" + num.toString());
-  //   setState(() {});
-  // }
+  void _decrementCounter() {
+    _counterBloc.add(CounterDecrementEvent());
+  }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    // streamDemo.streamController.stream
-    //     .listen(printStreamNumberAndReRenderWidget);
+  void _doubleCounter() {
+    _counterBloc.add(CounterDoubleEvent());
   }
 
   @override
@@ -78,20 +69,37 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             ),
-            StreamBuilder<int>(
-                stream: streamDemo.streamController.stream,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Text(
-                      snapshot.data.toString(),
+            BlocBuilder<CounterBloc, CounterState>(
+                bloc: _counterBloc,
+                builder: (context, state) {
+                  return Text(state.counter.toString(),
                       style: Theme.of(context)
                           .textTheme
                           .headline4
-                          ?.copyWith(fontSize: 55),
-                    );
-                  }
-                  return CircularProgressIndicator();
+                          ?.copyWith(fontSize: 55));
                 }),
+            Wrap(
+              children: [
+                ElevatedButton(
+                    onPressed: () {
+                      this._incrementCounter();
+                    },
+                    child: const Text("+ Increment Counter")),
+                SizedBox(
+                  width: 20,
+                ),
+                ElevatedButton(
+                    onPressed: () {
+                      this._decrementCounter();
+                    },
+                    child: const Text("- Decrement Counter")),
+                ElevatedButton(
+                    onPressed: () {
+                      this._doubleCounter();
+                    },
+                    child: const Text("x2 Double Counter"))
+              ],
+            )
           ],
         ),
       ),
